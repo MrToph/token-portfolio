@@ -1,7 +1,6 @@
 const LS_PREFIX = process.env.REACT_APP_NAME;
 
 const computeLocalStorageKey = (key: string) => `${LS_PREFIX}-${key}`;
-console.log(`LS_PREFIX = `, LS_PREFIX)
 
 export const getLocalStorage = (key: string, parseAsJson = true) => {
   const val = localStorage.getItem(computeLocalStorageKey(key));
