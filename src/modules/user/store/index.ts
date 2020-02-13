@@ -9,14 +9,18 @@ export default class AccountStore {
 
   constructor(rootStore: RootStore) {
     this.rootStore = rootStore;
-    this.accountName = getLocalStorage(`accountName`) || ``;
   }
 
   @action handleUserNameSubmit = (userName: string) => {
     this.accountName = userName;
     setLocalStorage(`accountName`, userName);
+    this.rootStore.onNewAccount()
   };
 
-  @action init = () => {
+  @action init = async () => {
+    this.accountName = getLocalStorage(`accountName`) || ``;
+    if(this.accountName) {
+      this.rootStore.onNewAccount()
+    }
   };
 }

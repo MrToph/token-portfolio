@@ -4,12 +4,14 @@ import {
   ThemeProvider,
   CSSReset,
   ColorModeProvider,
-  DarkMode
+  DarkMode,
+  Spinner
 } from "@chakra-ui/core";
 import { rootStore, storeContext } from "../store";
 import NavBar from "modules/user/components/NavBar";
 import customTheme from "../theme";
 import TransfersTable from "./TransfersTable";
+import { observer } from "mobx-react";
 
 export const StoreProvider = ({ children }) => {
   return (
@@ -31,8 +33,14 @@ const App: React.FC = () => {
         <ColorModeProvider>
           <DarkMode>
             <CSSReset />
-            <NavBar />
-            <TransfersTable />
+            {rootStore.initialized ? (
+              <>
+                <NavBar />
+                <TransfersTable />
+              </>
+            ) : (
+              <Spinner />
+            )}
           </DarkMode>
         </ColorModeProvider>
       </ThemeProvider>
@@ -40,4 +48,4 @@ const App: React.FC = () => {
   );
 };
 
-export default App;
+export default observer(App);

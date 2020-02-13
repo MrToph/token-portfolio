@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@chakra-ui/core": "^0.5.2",
-    "@deltalabs/eos-utils": "^1.4.3",
+    "@deltalabs/eos-utils": "^1.5.1",
     "@dfuse/client": "^0.3.8",
     "@emotion/core": "^10.0.27",
     "@emotion/styled": "^10.0.27",
@@ -15,6 +15,7 @@
     "@types/node": "^12.0.0",
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
+    "bignumber.js": "^9.0.0",
     "emotion-theming": "^10.0.27",
     "lodash": "^4.17.15",
     "mobx": "^5.15.4",
