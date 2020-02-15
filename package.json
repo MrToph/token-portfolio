@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@chakra-ui/core": "^0.5.2",
-    "@deltalabs/eos-utils": "^1.5.1",
+    "@deltalabs/eos-utils": "^1.5.2",
     "@dfuse/client": "^0.3.8",
     "@emotion/core": "^10.0.27",
     "@emotion/styled": "^10.0.27",
@@ -24,7 +24,8 @@
     "react-dom": "^16.12.0",
     "react-hook-form": "^4.9.3",
     "react-scripts": "3.3.1",
-    "typescript": "~3.7.2"
+    "typescript": "~3.7.2",
+    "victory": "^34.1.1"
   },
   "scripts": {
     "start": "react-scripts start",

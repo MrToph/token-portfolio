@@ -11,6 +11,7 @@ import { rootStore, storeContext } from "../store";
 import NavBar from "modules/user/components/NavBar";
 import customTheme from "../theme";
 import TransfersTable from "./TransfersTable";
+import TransfersChart from "./TransfersChart";
 import { observer } from "mobx-react";
 
 export const StoreProvider = ({ children }) => {
@@ -36,6 +37,7 @@ const App: React.FC = () => {
             {rootStore.initialized ? (
               <>
                 <NavBar />
+                <TransfersChart />
                 <TransfersTable />
               </>
             ) : (
