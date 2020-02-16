@@ -5,7 +5,8 @@ import {
   CSSReset,
   ColorModeProvider,
   DarkMode,
-  Spinner
+  Spinner,
+  Link,
 } from "@chakra-ui/core";
 import { rootStore, storeContext } from "../store";
 import NavBar from "modules/user/components/NavBar";
@@ -13,6 +14,7 @@ import customTheme from "../theme";
 import TransfersTable from "./TransfersTable";
 import TransfersChart from "./TransfersChart";
 import { observer } from "mobx-react";
+import { ReactComponent as GithubRibbon } from 'shared/assets/github.svg'
 
 export const StoreProvider = ({ children }) => {
   return (
@@ -36,6 +38,7 @@ const App: React.FC = () => {
             <CSSReset />
             {rootStore.initialized ? (
               <>
+                <Link href="https://github.com/MrToph/token-portfolio"><GithubRibbon /></Link>
                 <NavBar />
                 <TransfersChart />
                 <TransfersTable />

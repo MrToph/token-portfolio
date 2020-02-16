@@ -8,8 +8,7 @@ import {
   Input,
   InputGroup,
   InputRightElement,
-  Stack,
-  FormControl
+  FormControl,
 } from "@chakra-ui/core";
 import { useStore } from "shared/hooks";
 import { observer } from "mobx-react";
