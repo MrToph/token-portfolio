@@ -12,17 +12,21 @@ import {
   FormControl
 } from "@chakra-ui/core";
 import { useStore } from "shared/hooks";
+import { observer } from "mobx-react";
 
 const NavBar: React.FC = () => {
-  const userStore = useStore(rootStore => rootStore.userStore);
+  const [userStore, tokenStore] = useStore(rootStore => [rootStore.userStore, rootStore.tokenStore]);
 
   const { handleSubmit, errors, register } = useForm();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const onSubmit = values => {
     setIsSubmitting(true);
-
-    userStore.handleUserNameSubmit(values.name)
+    if(tokenStore.isFetching) {
+      tokenStore.cancelFetching()
+    } else {
+      userStore.handleUserNameSubmit(values.name)
+    }
     setIsSubmitting(false);
   };
 
@@ -64,7 +68,7 @@ const NavBar: React.FC = () => {
                   variantColor="teal"
                   aria-label="Search"
                   fontSize="20px"
-                  icon="search"
+                  icon={tokenStore.isFetching ? `close` : `search`}
                   type="submit"
                 />
               </InputRightElement>
@@ -76,4 +80,4 @@ const NavBar: React.FC = () => {
   );
 };
 
-export default NavBar;
+export default observer(NavBar);

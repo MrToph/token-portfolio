@@ -35,6 +35,8 @@ export default class TokenStore {
   rootStore: RootStore;
   @observable balance?: TAsset = undefined;
   @observable minBalanceFilter: string;
+  @observable public isFetching = false;
+  private shouldCancelFetching = false;
   @observable private transferActions = observable.array<
     TActionInfo<TTransferData>
   >([]);
@@ -61,6 +63,10 @@ export default class TokenStore {
     return { amount, symbol };
   }
 
+  public cancelFetching = async () => {
+    this.shouldCancelFetching = true
+  };
+
   @action public fetchTokenInfo = async () => {
     const {
       balance,
@@ -69,7 +75,15 @@ export default class TokenStore {
     this.balance = balance;
     this.transferActions.replace([]);
 
-    this._fetchTransactions(blockNum);
+    try {
+      this.shouldCancelFetching = false;
+      this.isFetching = true;
+      await this._fetchTransactions(blockNum);
+    } catch(error) {
+      console.error(error.message)
+    } finally {
+      this.isFetching = false;
+    }
   };
 
   @action private _fetchTransactions = async toBlock => {
@@ -92,7 +106,7 @@ export default class TokenStore {
 
     for await (const traces of searchTransactions(args[0], args[1], args[2])) {
       // stop fetching transfers for other account if we changed it
-      if (this._getAccount() !== accountName) break;
+      if (this.shouldCancelFetching) break;
       this.transferActions.push(...traces);
     }
   };

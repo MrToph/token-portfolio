@@ -15,7 +15,8 @@ import {
   Box,
   Link,
   Icon,
-  Code
+  Code,
+  Spinner
 } from "@chakra-ui/core";
 import { TGroupedTransfer } from "modules/root/store/token";
 import { getColorForBucket } from "../logic";
@@ -66,8 +67,7 @@ const MyListItem: React.FC<{ trx: TGroupedTransfer }> = ({
 };
 
 const TransfersTable: React.FC = () => {
-  const [userStore, tokenStore] = useStore(rootStore => [
-    rootStore.userStore,
+  const [tokenStore] = useStore(rootStore => [
     rootStore.tokenStore
   ]);
 
@@ -80,8 +80,9 @@ const TransfersTable: React.FC = () => {
       marginX="auto"
       marginY="12"
     >
-      <Heading as="h2" size="xl" mb="4">
-        Your Transfers
+      <Heading as="h2" size="xl" mb="4" position="relative">
+        <span>Your Transfers</span>
+        {tokenStore.isFetching && <Spinner bottom={2} right="-4" ml="2" position="absolute" />}
       </Heading>
       <TransfersFilter />
       <List spacing={1} fontSize="sm">
