@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "7e119cbe6149017014dc7c0527aeba3c",
+    "revision": "aef6be07631d7b8a1d1b7808159c22ed",
     "url": "/token-portfolio/index.html"
   },
   {
@@ -12,11 +12,15 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/token-portfolio/static/js/2.ec7c2e17.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "fdceaafab8f1c0fbc38f",
-    "url": "/token-portfolio/static/js/main.0b8fc397.chunk.js"
+    "revision": "14dc723f76082cd49e1f",
+    "url": "/token-portfolio/static/js/main.200ca90d.chunk.js"
   },
   {
     "revision": "b6f6a27333e1bdd3c69d",
     "url": "/token-portfolio/static/js/runtime-main.08afe7b2.js"
+  },
+  {
+    "revision": "e2ba83eb36c34d735939e4bde22c9d88",
+    "url": "/token-portfolio/static/media/github.e2ba83eb.svg"
   }
 ]);
