@@ -1,10 +1,10 @@
-name: MasterDeployCI
+name: Deployment
 on:
   push:
     branches:
       - master
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -20,4 +20,7 @@ jobs:
     - name: Build page
       run: npm run build
     - name: Deploy to gh-pages
-      run: echo "TODO"
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+        publish_dir: ./build

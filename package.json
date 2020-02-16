@@ -2,6 +2,7 @@
   "name": "token-portfolio",
   "version": "0.1.0",
   "private": true,
+  "homepage": "/token-portfolio",
   "dependencies": {
     "@chakra-ui/core": "^0.5.2",
     "@deltalabs/eos-utils": "^1.5.2",
