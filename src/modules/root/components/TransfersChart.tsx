@@ -52,6 +52,7 @@ const TransfersChart: React.FC<{}> = props => {
         theme={VictoryTheme.material}
         domain={state.zoomDomain}
         padding={{ left: 100, right: 50, top: 50, bottom: 50 }}
+        domainPadding={{ x: [10, 10], y: [10, 60]}}
       >
         <VictoryLine
           style={{

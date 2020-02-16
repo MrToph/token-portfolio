@@ -7,6 +7,7 @@ import { TAccountsRow } from "types/tables";
 import groupBy from "lodash/groupBy";
 import { TActionTraceMatcher, TActionInfo } from "types/dfuse";
 import { computeHistogram } from "../logic";
+import { setLocalStorage, getLocalStorage } from "shared/local-storage";
 
 const EOS_SYMBOL = {
   precision: 4,
@@ -33,12 +34,31 @@ type TGroupedTransfers = {
 export default class TokenStore {
   rootStore: RootStore;
   @observable balance?: TAsset = undefined;
+  @observable minBalanceFilter: string;
   @observable private transferActions = observable.array<
     TActionInfo<TTransferData>
   >([]);
 
   constructor(rootStore: RootStore) {
     this.rootStore = rootStore;
+    this.minBalanceFilter = getLocalStorage(`minBalanceFilter`) || `0.01`;
+  }
+
+  @action handleMinBalanceFilterSubmit = (minBalanceFilter: string) => {
+    this.minBalanceFilter = minBalanceFilter;
+    setLocalStorage(`minBalanceFilter`, minBalanceFilter);
+  };
+
+  @computed private get minBalance() {
+    let amount = 0;
+    const symbol = this.balance!.symbol;
+    if (this.minBalanceFilter) {
+      const precisionAdjustment = Math.pow(10, symbol.precision);
+      amount = Math.floor(
+        Number.parseFloat(this.minBalanceFilter) * precisionAdjustment
+      );
+    }
+    return { amount, symbol };
   }
 
   @action public fetchTokenInfo = async () => {
@@ -71,7 +91,8 @@ export default class TokenStore {
     ];
 
     for await (const traces of searchTransactions(args[0], args[1], args[2])) {
-      console.log(traces);
+      // stop fetching transfers for other account if we changed it
+      if (this._getAccount() !== accountName) break;
       this.transferActions.push(...traces);
     }
   };
@@ -97,16 +118,19 @@ export default class TokenStore {
     };
   };
 
+  private _getAccount(): string {
+    return this.rootStore.userStore.accountName;
+  }
+
   private _checkAccount(): string {
-    const accountName = this.rootStore.userStore.accountName;
+    const accountName = this._getAccount();
     if (!accountName) throw new Error(`Must enter an account name first`);
     return accountName;
   }
 
   @computed public get groupedTransfers(): TGroupedTransfers {
-    const accountName = this._checkAccount();
-
-    if (!this.balance) return {};
+    const accountName = this._getAccount();
+    if (!accountName || !this.balance) return {};
 
     let runningAmount = this.balance.amount;
     const symbol = this.balance.symbol;
@@ -116,7 +140,7 @@ export default class TokenStore {
       (a1, a2) => a2.blockNumber - a1.blockNumber
     );
     const groupedActions = groupBy(sortedAction, action => action.trxId);
-    Object.entries(groupedActions).forEach(([trxId, actions]) => {
+    Object.entries(groupedActions).forEach(([trxId, actions], index) => {
       let sumAmount = new BigNumber(`0`);
       let biggestParty = ``;
       let biggestPartyAmount = new BigNumber(`0`);
@@ -132,17 +156,26 @@ export default class TokenStore {
         }
       });
 
-      const [action] = actions;
-      result[trxId] = {
-        trxId: action.trxId,
-        blockNumber: action.blockNumber,
-        timestamp: action.timestamp,
-        deltaQuantity: { amount: sumAmount, symbol },
-        balance: { amount: runningAmount, symbol },
-        impact: 0,
-        party: biggestParty
-      };
+      // filter results by minBalance
+      // always show latest transfer such that the correct current balance is displayed
+      const isLatestTransfer = index === 0;
+      if (
+        isLatestTransfer ||
+        sumAmount.abs().isGreaterThanOrEqualTo(this.minBalance.amount)
+      ) {
+        const [action] = actions;
+        result[trxId] = {
+          trxId: action.trxId,
+          blockNumber: action.blockNumber,
+          timestamp: action.timestamp,
+          deltaQuantity: { amount: sumAmount, symbol },
+          balance: { amount: runningAmount, symbol },
+          impact: 0,
+          party: biggestParty
+        };
+      }
       runningAmount = runningAmount.minus(sumAmount);
+
     });
 
     const transactions = Object.values(result);

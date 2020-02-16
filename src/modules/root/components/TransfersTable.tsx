@@ -19,6 +19,7 @@ import {
 } from "@chakra-ui/core";
 import { TGroupedTransfer } from "modules/root/store/token";
 import { getColorForBucket } from "../logic";
+import TransfersFilter from "./TransfersFilter";
 
 const ListItemBox = styled(Box)`
   display: inline-block;
@@ -51,7 +52,7 @@ const MyListItem: React.FC<{ trx: TGroupedTransfer }> = ({
           flexDir="row"
           alignItems="center"
           lineHeight="1.5em"
-          href={formatBlockExplorerTransaction(`bloks`)(trx.trxId)}
+          href={formatBlockExplorerTransaction(`eosq`)(trx.trxId)}
           isExternal
         >
           <Code backgroundColor="transparent">
@@ -82,6 +83,7 @@ const TransfersTable: React.FC = () => {
       <Heading as="h2" size="xl" mb="4">
         Your Transfers
       </Heading>
+      <TransfersFilter />
       <List spacing={1} fontSize="sm">
       <ListItem py="4" px="6" textTransform="uppercase">
       <ListItemBox w="48">Time</ListItemBox>

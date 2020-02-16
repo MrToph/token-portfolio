@@ -62,7 +62,7 @@ const NavBar: React.FC = () => {
               <InputRightElement>
                 <IconButton
                   variantColor="teal"
-                  aria-label="Call Sage"
+                  aria-label="Search"
                   fontSize="20px"
                   icon="search"
                   type="submit"
