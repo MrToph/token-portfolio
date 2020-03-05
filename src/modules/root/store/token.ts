@@ -98,13 +98,10 @@ export default class TokenStore {
           trace.act.data.to === accountName)
       );
     };
-    const args = [
-      `receiver:${accountName} account:eosio.token action:transfer`,
-      toBlock,
-      actionTraceMatcher
-    ];
 
-    for await (const traces of searchTransactions(args[0], args[1], args[2])) {
+    const searchString = `receiver:${accountName} account:eosio.token action:transfer`
+
+    for await (const traces of searchTransactions(searchString, actionTraceMatcher, { toBlock, limit: 20 })) {
       // stop fetching transfers for other account if we changed it
       if (this.shouldCancelFetching) break;
       this.transferActions.push(...traces);

@@ -112,11 +112,20 @@ const getActionTraces = (tx: SearchTransactionRow, isMatchingTrace: TActionTrace
   });
 };
 
+type DfuseSearchTransactionOptions = {
+  toBlock?: number;
+  limit: number;
+}
+const defaultSearchOptions:DfuseSearchTransactionOptions = {
+  toBlock: undefined,
+  limit: 100,
+}
 export async function* searchTransactions(
   searchQuery: string,
-  toBlock: number,
-  actionTraceMatcher: TActionTraceMatcher
+  actionTraceMatcher: TActionTraceMatcher,
+  options: DfuseSearchTransactionOptions = defaultSearchOptions,
 ): AsyncIterableIterator<ReturnType<typeof getActionTraces>> {
+  options = { ...defaultSearchOptions, ...options }
   let response: any;
   let cursor = ``;
 
@@ -130,9 +139,10 @@ export async function* searchTransactions(
           }, 20 * 1e3);
         }),
         client.searchTransactions(searchQuery, {
-          limit: 10,
+          limit: options.limit,
           sort: `desc`,
-          cursor
+          cursor,
+          startBlock: options.toBlock
         })
       ]);
     } catch (error) {
