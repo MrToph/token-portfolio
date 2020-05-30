@@ -1,7 +1,8 @@
 import {
   createDfuseClient,
   SearchTransactionRow,
-  ActionTrace
+  ActionTrace,
+  DfuseClient,
 } from "@dfuse/client";
 import { TEosAction } from "@deltalabs/eos-utils";
 import { TActionTraceMatcher, TActionInfo } from "types/dfuse";
@@ -35,13 +36,20 @@ export interface TableScopes {
   scopes: string[];
 }
 
-const DFUSE_API_KEY = process.env.REACT_APP_DFUSE_API_KEY;
-if (!DFUSE_API_KEY)
-  throw new Error(`No REACT_APP_DFUSE_API_KEY env var passed`);
+let DFUSE_API_KEY = localStorage.getItem(`DFUSE_API_KEY`);
+
+if (!DFUSE_API_KEY) {
+  let apiKey = ``;
+  do {
+    apiKey = prompt(`Must provide a dfuse.io API key`, `Title`) || ``;
+  } while (!apiKey);
+  localStorage.setItem(`DFUSE_API_KEY`, apiKey);
+  DFUSE_API_KEY = apiKey;
+}
 
 const client = createDfuseClient({
   apiKey: DFUSE_API_KEY,
-  network: `mainnet`
+  network: `mainnet`,
 });
 
 export async function getTableScopes(
@@ -51,7 +59,7 @@ export async function getTableScopes(
 ) {
   try {
     const response = await client.stateTableScopes(code, table, {
-      blockNum: block_num
+      blockNum: block_num,
     });
     return (response as unknown) as TableScopes;
   } catch (e) {
@@ -67,7 +75,7 @@ export async function getTablesByScopes<T>(
 ): Promise<TableScopesResult<T>> {
   try {
     const response = await client.stateTablesForScopes<T>(code, scopes, table, {
-      blockNum: block_num
+      blockNum: block_num,
     });
     return (response as unknown) as TableScopesResult<T>;
   } catch (e) {
@@ -75,7 +83,10 @@ export async function getTablesByScopes<T>(
   }
 }
 
-const getActionTraces = (tx: SearchTransactionRow, isMatchingTrace: TActionTraceMatcher):TActionInfo[] => {
+const getActionTraces = (
+  tx: SearchTransactionRow,
+  isMatchingTrace: TActionTraceMatcher
+): TActionInfo[] => {
   const matchingTraces = new Array<ActionTrace<any>>();
 
   // BFS through transaction traces
@@ -92,7 +103,7 @@ const getActionTraces = (tx: SearchTransactionRow, isMatchingTrace: TActionTrace
     }
   }
 
-  return matchingTraces.map(trace => {
+  return matchingTraces.map((trace) => {
     return {
       blockNumber: trace.block_num,
       timestamp: new Date(`${trace.block_time}Z`),
@@ -103,11 +114,14 @@ const getActionTraces = (tx: SearchTransactionRow, isMatchingTrace: TActionTrace
       trxId: trace.trx_id,
       // https://github.com/EOSIO/eos/blob/master/libraries/chain/apply_context.cpp#L127
       // global_sequence unique per non-failed transactions
-      globalSequence: Number.parseInt(String(trace.receipt.global_sequence), 10),
+      globalSequence: Number.parseInt(
+        String(trace.receipt.global_sequence),
+        10
+      ),
       // recv_sequence unique per contract, is a counter incremeted each time account is a receiver
       receiveSequence: Number.parseInt(String(trace.receipt.recv_sequence), 10),
       // not necessarily unique as it just hashes the action data?
-      actDigest: trace.receipt.act_digest
+      actDigest: trace.receipt.act_digest,
     };
   });
 };
@@ -115,17 +129,17 @@ const getActionTraces = (tx: SearchTransactionRow, isMatchingTrace: TActionTrace
 type DfuseSearchTransactionOptions = {
   toBlock?: number;
   limit: number;
-}
-const defaultSearchOptions:DfuseSearchTransactionOptions = {
+};
+const defaultSearchOptions: DfuseSearchTransactionOptions = {
   toBlock: undefined,
   limit: 100,
-}
+};
 export async function* searchTransactions(
   searchQuery: string,
   actionTraceMatcher: TActionTraceMatcher,
-  options: DfuseSearchTransactionOptions = defaultSearchOptions,
+  options: DfuseSearchTransactionOptions = defaultSearchOptions
 ): AsyncIterableIterator<ReturnType<typeof getActionTraces>> {
-  options = { ...defaultSearchOptions, ...options }
+  options = { ...defaultSearchOptions, ...options };
   let response: any;
   let cursor = ``;
 
@@ -142,8 +156,8 @@ export async function* searchTransactions(
           limit: options.limit,
           sort: `desc`,
           cursor,
-          startBlock: options.toBlock
-        })
+          startBlock: options.toBlock,
+        }),
       ]);
     } catch (error) {
       let message = error.message;
@@ -160,9 +174,9 @@ export async function* searchTransactions(
     const newTransactions = response.transactions;
     if (newTransactions && newTransactions[0]) {
       const newActions = [] as ReturnType<typeof getActionTraces>;
-      newTransactions.forEach(trans => {
+      newTransactions.forEach((trans) => {
         const actions = getActionTraces(trans, actionTraceMatcher);
-        newActions.push(...actions)
+        newActions.push(...actions);
       });
       yield newActions;
     }
