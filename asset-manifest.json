@@ -1,20 +1,20 @@
 {
   "files": {
-    "main.js": "/token-portfolio/static/js/main.fe710a42.chunk.js",
-    "main.js.map": "/token-portfolio/static/js/main.fe710a42.chunk.js.map",
+    "main.js": "/token-portfolio/static/js/main.c6b54941.chunk.js",
+    "main.js.map": "/token-portfolio/static/js/main.c6b54941.chunk.js.map",
     "runtime-main.js": "/token-portfolio/static/js/runtime-main.08afe7b2.js",
     "runtime-main.js.map": "/token-portfolio/static/js/runtime-main.08afe7b2.js.map",
-    "static/js/2.ba746119.chunk.js": "/token-portfolio/static/js/2.ba746119.chunk.js",
-    "static/js/2.ba746119.chunk.js.map": "/token-portfolio/static/js/2.ba746119.chunk.js.map",
+    "static/js/2.af2fc468.chunk.js": "/token-portfolio/static/js/2.af2fc468.chunk.js",
+    "static/js/2.af2fc468.chunk.js.map": "/token-portfolio/static/js/2.af2fc468.chunk.js.map",
     "index.html": "/token-portfolio/index.html",
-    "precache-manifest.baf6cd2e7b0a6eb028e097266f9021c8.js": "/token-portfolio/precache-manifest.baf6cd2e7b0a6eb028e097266f9021c8.js",
+    "precache-manifest.fccc04a36d8a55f9e6376f589f9584c1.js": "/token-portfolio/precache-manifest.fccc04a36d8a55f9e6376f589f9584c1.js",
     "service-worker.js": "/token-portfolio/service-worker.js",
-    "static/js/2.ba746119.chunk.js.LICENSE.txt": "/token-portfolio/static/js/2.ba746119.chunk.js.LICENSE.txt",
+    "static/js/2.af2fc468.chunk.js.LICENSE.txt": "/token-portfolio/static/js/2.af2fc468.chunk.js.LICENSE.txt",
     "static/media/github.e2ba83eb.svg": "/token-portfolio/static/media/github.e2ba83eb.svg"
   },
   "entrypoints": [
     "static/js/runtime-main.08afe7b2.js",
-    "static/js/2.ba746119.chunk.js",
-    "static/js/main.fe710a42.chunk.js"
+    "static/js/2.af2fc468.chunk.js",
+    "static/js/main.c6b54941.chunk.js"
   ]
 }
