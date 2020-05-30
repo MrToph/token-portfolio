@@ -41,7 +41,7 @@ let DFUSE_API_KEY = localStorage.getItem(`DFUSE_API_KEY`);
 if (!DFUSE_API_KEY) {
   let apiKey = ``;
   do {
-    apiKey = prompt(`Must provide a dfuse.io API key`, `Title`) || ``;
+    apiKey = prompt(`Must provide a dfuse.io API key`, `server_`) || ``;
   } while (!apiKey);
   localStorage.setItem(`DFUSE_API_KEY`, apiKey);
   DFUSE_API_KEY = apiKey;
