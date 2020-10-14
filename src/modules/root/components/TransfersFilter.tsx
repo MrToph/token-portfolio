@@ -1,26 +1,19 @@
-import { observer } from "mobx-react";
-import React, { useState } from "react";
-import styled from "@emotion/styled";
-import { useStore } from "shared/hooks";
-import {
-  formatAsset,
-  formatBlockExplorerTransaction
-} from "@deltalabs/eos-utils";
 import {
   Box,
   Flex,
+  FormControl,
+  Heading,
   IconButton,
   Input,
   InputGroup,
-  InputRightElement,
-  Stack,
-  FormControl,
   InputLeftAddon,
-  Heading
+  InputRightElement,
 } from "@chakra-ui/core";
-import { TGroupedTransfer } from "modules/root/store/token";
-import { getColorForBucket } from "../logic";
+import styled from "@emotion/styled";
+import { observer } from "mobx-react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useStore } from "shared/hooks";
 
 const ListItemBox = styled(Box)`
   display: inline-block;
@@ -28,22 +21,22 @@ const ListItemBox = styled(Box)`
 `;
 
 const TransfersFilter: React.FC = () => {
-  const [userStore, tokenStore] = useStore(rootStore => [
+  const [userStore, tokenStore] = useStore((rootStore) => [
     rootStore.userStore,
-    rootStore.tokenStore
+    rootStore.tokenStore,
   ]);
 
   const { handleSubmit, errors, register } = useForm();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const onSubmit = values => {
+  const onSubmit = (values) => {
     setIsSubmitting(true);
 
     tokenStore.handleMinBalanceFilterSubmit(values.minBalanceFilter);
     setIsSubmitting(false);
   };
 
-  const validateNumber = value => {
+  const validateNumber = (value) => {
     return /^\d*(\.\d+){0,1}$/.test(value);
   };
 

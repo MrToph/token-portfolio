@@ -1,17 +1,22 @@
-import { decomposeAsset, formatAsset, TAsset } from "@deltalabs/eos-utils";
+import {
+  decomposeAsset,
+  DfuseSearcher,
+  formatAsset,
+  TActionInfo,
+  TAsset,
+} from "@deltalabs/eos-utils";
 import BigNumber from "bignumber.js";
 import { action, observable, computed } from "mobx";
 import RootStore from "modules/root/store";
-import { getTablesByScopes, searchTransactions } from "shared/eos/dfuse";
+import { dfuseClient, getTablesByScopes } from "shared/eos/dfuse";
 import { TAccountsRow } from "types/tables";
 import groupBy from "lodash/groupBy";
-import { TActionTraceMatcher, TActionInfo } from "types/dfuse";
 import { computeHistogram } from "../logic";
 import { setLocalStorage, getLocalStorage } from "shared/local-storage";
 
 const EOS_SYMBOL = {
   precision: 4,
-  code: `EOS`
+  code: `EOS`,
 };
 type TTransferData = {
   from: string;
@@ -64,13 +69,13 @@ export default class TokenStore {
   }
 
   public cancelFetching = async () => {
-    this.shouldCancelFetching = true
+    this.shouldCancelFetching = true;
   };
 
   @action public fetchTokenInfo = async () => {
     const {
       balance,
-      lastIrreversibleBlockNum: blockNum
+      lastIrreversibleBlockNum: blockNum,
     } = await this._fetchCurrentBalance();
     this.balance = balance;
     this.transferActions.replace([]);
@@ -79,29 +84,33 @@ export default class TokenStore {
       this.shouldCancelFetching = false;
       this.isFetching = true;
       await this._fetchTransactions(blockNum);
-    } catch(error) {
-      console.error(error.message)
+    } catch (error) {
+      console.error(error.message);
     } finally {
       this.isFetching = false;
     }
   };
 
-  @action private _fetchTransactions = async toBlock => {
+  @action private _fetchTransactions = async (toBlock) => {
     const accountName = this._checkAccount();
-    const actionTraceMatcher: TActionTraceMatcher = trace => {
-      if (trace.receipt.receiver !== accountName) return false;
 
-      return (
-        trace.act.account === `eosio.token` &&
-        trace.act.name === `transfer` &&
-        (trace.act.data.from === accountName ||
-          trace.act.data.to === accountName)
-      );
+    const searcher = new DfuseSearcher({ client: dfuseClient });
+
+    const actionTraceMatcher: Parameters<
+      typeof searcher["searchTransactions"]
+    >[1] = (trace) => {
+      return true;
     };
+    const searchString = `receiver:${accountName} account:eosio.token action:transfer`;
 
-    const searchString = `receiver:${accountName} account:eosio.token action:transfer`
-
-    for await (const traces of searchTransactions(searchString, actionTraceMatcher, { toBlock, limit: 20 })) {
+    for await (const traces of searcher.searchTransactions<any>(
+      searchString,
+      actionTraceMatcher,
+      {
+        limit: 100,
+        backward: true,
+      }
+    )) {
       // stop fetching transfers for other account if we changed it
       if (this.shouldCancelFetching) break;
       this.transferActions.push(...traces);
@@ -125,7 +134,7 @@ export default class TokenStore {
     }
     return {
       balance: { amount: balanceAmount, symbol: EOS_SYMBOL },
-      lastIrreversibleBlockNum
+      lastIrreversibleBlockNum,
     };
   };
 
@@ -150,12 +159,12 @@ export default class TokenStore {
     const sortedAction = this.transferActions.sort(
       (a1, a2) => a2.blockNumber - a1.blockNumber
     );
-    const groupedActions = groupBy(sortedAction, action => action.trxId);
+    const groupedActions = groupBy(sortedAction, (action) => action.txId);
     Object.entries(groupedActions).forEach(([trxId, actions], index) => {
       let sumAmount = new BigNumber(`0`);
       let biggestParty = ``;
       let biggestPartyAmount = new BigNumber(`0`);
-      actions.forEach(action => {
+      actions.forEach((action) => {
         const isIncoming = action.data.to === accountName;
         const amount = decomposeAsset(action.data.quantity).amount;
         sumAmount = isIncoming
@@ -176,28 +185,27 @@ export default class TokenStore {
       ) {
         const [action] = actions;
         result[trxId] = {
-          trxId: action.trxId,
+          trxId: action.txId,
           blockNumber: action.blockNumber,
           timestamp: action.timestamp,
           deltaQuantity: { amount: sumAmount, symbol },
           balance: { amount: runningAmount, symbol },
           impact: 0,
-          party: biggestParty
+          party: biggestParty,
         };
       }
       runningAmount = runningAmount.minus(sumAmount);
-
     });
 
     const transactions = Object.values(result);
     const histogram = computeHistogram(
       transactions.map((trx, index) => ({
         index,
-        val: trx.deltaQuantity.amount.toNumber()
+        val: trx.deltaQuantity.amount.toNumber(),
       }))
     );
 
-    histogram.forEach(d => {
+    histogram.forEach((d) => {
       transactions[d.index].impact = d.bucket;
     });
 
@@ -208,9 +216,9 @@ export default class TokenStore {
     if (!this.balance) return [];
 
     const precisionAdjustment = Math.pow(10, this.balance!.symbol.precision);
-    return Object.values(this.groupedTransfers).map(trx => ({
+    return Object.values(this.groupedTransfers).map((trx) => ({
       x: trx.timestamp,
-      y: trx.balance.amount.toNumber() / precisionAdjustment
+      y: trx.balance.amount.toNumber() / precisionAdjustment,
     }));
   }
 

@@ -5,8 +5,8 @@
   "homepage": "/token-portfolio",
   "dependencies": {
     "@chakra-ui/core": "^0.5.2",
-    "@deltalabs/eos-utils": "^1.5.2",
-    "@dfuse/client": "^0.3.8",
+    "@deltalabs/eos-utils": "^3.0.1",
+    "@dfuse/client": "^0.3.15",
     "@emotion/core": "^10.0.27",
     "@emotion/styled": "^10.0.27",
     "@testing-library/jest-dom": "^4.2.4",

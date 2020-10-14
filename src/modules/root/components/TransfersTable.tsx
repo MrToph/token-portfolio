@@ -71,6 +71,8 @@ const TransfersTable: React.FC = () => {
     rootStore.tokenStore
   ]);
 
+  console.log(`groupedTransfer`, tokenStore.groupedTransfers)
+
   return (
     <Flex
       flexDir="column"
